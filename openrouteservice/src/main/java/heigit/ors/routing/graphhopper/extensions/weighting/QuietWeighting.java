@@ -35,16 +35,17 @@ public class QuietWeighting extends FastestWeighting {
     }
 
     private double calcNoiseWeightFactor(int level) {
-    	if ( level == 0)
-    		return 1;
-        else if ( level <=1 )
-        	return 1 + _weightingFactor * 10;
-        else if ( level <=2 )
-        	return 1 + _weightingFactor * _weightingFactor * 200;  // drop factor for noise level 2 and 3 dramatically, but still larger then the factor for noise level 1 
-        else if (level <=3 )
-        	return 1 + _weightingFactor * _weightingFactor * 400;
-        else
-        	throw new AssertionError("The noise level "+  level + " is not supported!");
+      return (level / 6.) * _weightingFactor;
+      /**if ( level == 0)
+       return 1;
+       else if ( level <=1 )
+       return 1 + _weightingFactor * 10;
+       else if ( level <=2 )
+       return 1 + _weightingFactor * _weightingFactor * 200;  // drop factor for noise level 2 and 3 dramatically, but still larger then the factor for noise level 1
+       else if (level <=3 )
+       return 1 + _weightingFactor * _weightingFactor * 400;
+       else
+       throw new AssertionError("The noise level "+  level + " is not supported!"); **/
     }
 
     @Override

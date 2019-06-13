@@ -153,7 +153,9 @@ public class ORSWeightingFactory implements WeightingFactory {
 			{
 				Weighting[] arrWeightings = new Weighting[softWeightings.size()];
 				arrWeightings = softWeightings.toArray(arrWeightings);
-				result = new AdditionWeighting(arrWeightings, result, encoder, hintsMap, graphStorage);
+				result = new FuzzyWeighting(arrWeightings, result, encoder, hintsMap, graphStorage);
+				//result = new AdditionWeighting(arrWeightings, result, encoder, hintsMap, graphStorage);
+
 			}
 		}
 

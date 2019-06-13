@@ -374,10 +374,10 @@ public class ExtraInfoProcessor extends PathProcessor {
 		if (_noiseInfoBuilder != null) {
 			int noise_level = _extNoiseIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 			// convert the noise level (from 0 to 3) to the values (from 7 to 10) for the client
-			if (noise_level > 3)
-				noise_level = 3; 
+			//if (noise_level > 3)
+			//	noise_level = 3;
 			
-			int client_noise_level = noise_level + 7;
+			int client_noise_level = noise_level; // + 7;
 			_noiseInfoBuilder.addSegment(noise_level, client_noise_level, geom, dist, isLastEdge && _lastSegment);
 		}
 
