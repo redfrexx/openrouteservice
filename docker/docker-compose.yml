@@ -7,7 +7,7 @@ services:
         build:
             context: ../
             args:
-                APP_CONFIG: ./docker/conf/app.config.sample
+                APP_CONFIG: ./docker/conf/app.config
                 OSM_FILE: ./docker/data/heidelberg.osm.gz
         volumes:
             - ./graphs:/ors-core/data/graphs
