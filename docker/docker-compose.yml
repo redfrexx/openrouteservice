@@ -1,6 +1,6 @@
 version: '3'
 services:
-    ors-app:
+    ors-app-modelled:
         container_name: ors-app-noise-modelled
         ports:
         - 8081:8081
