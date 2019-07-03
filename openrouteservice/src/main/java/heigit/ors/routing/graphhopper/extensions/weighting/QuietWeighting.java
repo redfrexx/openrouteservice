@@ -35,8 +35,14 @@ public class QuietWeighting extends FastestWeighting {
     }
 
     private double calcNoiseWeightFactor(int level) {
-      return (level / 6.) * _weightingFactor;
-      /**if ( level == 0)
+        if (level == 0) {
+            return 0.;
+        } else if (level == 6) {
+            return 1. * _weightingFactor;
+        } else {
+            return (level / 6.) * _weightingFactor;
+        }
+            /**if ( level == 0)
        return 1;
        else if ( level <=1 )
        return 1 + _weightingFactor * 10;
