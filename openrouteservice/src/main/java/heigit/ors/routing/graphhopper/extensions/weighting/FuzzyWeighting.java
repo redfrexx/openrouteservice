@@ -55,19 +55,28 @@ public class FuzzyWeighting extends AbstractWeighting {
 
   @Override
   public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
+    /**
+     * Calculates the costs of a route segment based on multiple routing criteria and the distance
+     * using a linear combination of the form:
+     * cost = distance + ((criteria_1 * weight_1) * (criteria_2 * weight_2) * ... * (criteria_n * weight_n)) * distance
+     */
 
     // Distance of edge
     double distance = _superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
-    double time = _superWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
+    //double time = _superWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
     double[] weights = new double[_weightings.length];
 
-    // Other weights
-    double healty_weight = 0.;
+    // Additional health criteria (green and noise)
+    double healthy_weight = 0.;
     for (int i = 0; i < _weightings.length; i++) {
-      weights[i] = _weightings[i].calcWeight(edgeState, reverse, prevOrNextEdgeId) * distance;
-      healty_weight += weights[i];
+      weights[i] = _weightings[i].calcWeight(edgeState, reverse, prevOrNextEdgeId);
+      healthy_weight += weights[i];
+      //System.out.print(_weightings[i].getName() + ":" + weights[i] + "\n");
     }
-    return distance + healty_weight;
+    healthy_weight = (healthy_weight / _weightings.length) * distance;
+    //System.out.print("distance cost: " + distance + "\n");
+    //System.out.print("additional cost:" + healthy_weight + "\n");
+    return distance + healthy_weight;
   }
 
   @Override
