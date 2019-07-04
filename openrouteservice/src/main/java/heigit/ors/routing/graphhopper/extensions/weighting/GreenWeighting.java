@@ -64,4 +64,10 @@ public class GreenWeighting extends FastestWeighting {
 
         return 1.0;
     }
+
+    @Override
+    public String getName() {
+        return "green";
+    }
+
 }

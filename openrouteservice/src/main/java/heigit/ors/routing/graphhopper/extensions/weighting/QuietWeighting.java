@@ -35,8 +35,16 @@ public class QuietWeighting extends FastestWeighting {
     }
 
     private double calcNoiseWeightFactor(int level) {
-      return (level / 6.) * _weightingFactor;
-      /**if ( level == 0)
+        return Math.log(level * _weightingFactor * 5 + 1);
+        /**
+        if (level == 0) {
+            return 0.;
+        } else if (level >= ) {
+            return 1. * _weightingFactor * 2;
+        } else {
+            return (level / 6.) * _weightingFactor * 2;
+        }
+        if ( level == 0)
        return 1;
        else if ( level <=1 )
        return 1 + _weightingFactor * 10;
@@ -54,7 +62,12 @@ public class QuietWeighting extends FastestWeighting {
             int noiseLevel = _gsNoiseIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), _buffer);
             return calcNoiseWeightFactor(noiseLevel);
         }
-
         return 1.0;
     }
+
+    @Override
+    public String getName() {
+        return "quiet";
+    }
+
 }
