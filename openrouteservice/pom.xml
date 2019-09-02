@@ -126,7 +126,7 @@
                 <version>2.2</version>
                 <configuration>
                     <path>/${project.build.finalName}</path>
-                    <port>8083</port>
+                    <port>80</port>
                     <addContextWarDependencies>true</addContextWarDependencies>
                     <addWarDependenciesInClassloader>true</addWarDependenciesInClassloader>
                     <warSourceDirectory>${project.build.directory}/${project.build.finalName}/</warSourceDirectory>
