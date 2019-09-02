@@ -5,7 +5,7 @@ ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -Dinstall
 
 ARG APP_CONFIG=docker/conf/app.config
 ARG OSM_FILE=docker/data/highways_hd_dd_20190201.osm
-ARG NOISE_FILE=docker/data/noise_data_hd.csv
+ARG NOISE_FILE=docker/data/noise_data_eu.csv
 ARG GREEN_FILE=docker/data/green_streets_hd.csv
 ARG JAVA_OPTS
 ARG CATALINA_OPTS
@@ -26,7 +26,7 @@ COPY openrouteservice /ors-core/openrouteservice
 
 # Copy osm data file, config and cache if provided (ors will download otherwise)
 COPY $OSM_FILE /ors-core/data/highways_hd_dd_20190201.osm
-COPY $NOISE_FILE /ors-core/data/noise_data_hd.csv
+COPY $NOISE_FILE /ors-core/data/noise_data_eu.csv
 COPY $GREEN_FILE /ors-core/data/green_streets_hd.csv
 COPY $APP_CONFIG /ors-core/openrouteservice/src/main/resources/app.config
 
