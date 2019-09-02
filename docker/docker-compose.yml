@@ -1,9 +1,9 @@
 version: '3'
 services:
     ors-app-modelled:
-        container_name: ors-app-noise-modelled
+        container_name: ors-app-meingruen
         ports:
-        - 8081:8081
+        - 80:80
         build:
             context: ../
             args:
