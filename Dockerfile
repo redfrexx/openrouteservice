@@ -51,6 +51,6 @@ RUN echo "JAVA_OPTS=\"$JAVA_OPTS\"" >> /usr/local/tomcat/bin/setenv.sh
 RUN cp /ors-core/openrouteservice/target/*.war /usr/local/tomcat/webapps/ors.war
 
 # Start the container
-EXPOSE 8081
+EXPOSE 80
 CMD /usr/local/tomcat/bin/catalina.sh run
 
