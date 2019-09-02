@@ -4,7 +4,7 @@ ENV MAVEN_OPTS="-Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.o
 ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
 
 ARG APP_CONFIG=docker/conf/app.config
-ARG OSM_FILE=docker/data/heidelberg_20190201.osm.gz
+ARG OSM_FILE=docker/data/heidelberg_20190201.osm
 ARG NOISE_FILE=docker/data/noise_data_hd.csv
 ARG GREEN_FILE=docker/data/green_streets_hd.csv
 ARG JAVA_OPTS
@@ -25,7 +25,7 @@ RUN mkdir /ors-core
 COPY openrouteservice /ors-core/openrouteservice
 
 # Copy osm data file, config and cache if provided (ors will download otherwise)
-COPY $OSM_FILE /ors-core/data/heidelberg_20190201.osm.gz
+COPY $OSM_FILE /ors-core/data/heidelberg_20190201.osm
 COPY $NOISE_FILE /ors-core/data/noise_data_hd.csv
 COPY $GREEN_FILE /ors-core/data/green_streets_hd.csv
 COPY $APP_CONFIG /ors-core/openrouteservice/src/main/resources/app.config
