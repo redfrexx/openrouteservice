@@ -8,7 +8,7 @@ services:
             context: ../
             args:
                 APP_CONFIG: ./docker/conf/app.config
-                OSM_FILE: ./docker/data/highways_hd_dd_20190201.osm
+                OSM_FILE: ./docker/data/highways_hd_dd_20190630.osm
         volumes:
             - ./graphs:/ors-core/data/graphs
             - ./elevation_cache:/ors-core/data/elevation_cache
