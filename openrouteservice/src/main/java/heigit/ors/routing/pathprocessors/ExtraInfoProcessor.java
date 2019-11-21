@@ -420,13 +420,13 @@ public class ExtraInfoProcessor extends PathProcessor {
 		}
 
 		if (_greenInfoBuilder != null) {
-			int value = _extGreenIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
+			int green_level = _extGreenIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 			// This number is how many levels client can display in the stats bar
 			// FIXME should be changed when the specific bar legend for green routing is finished
-			int MIN_CLIENT_VAL = 3;
-			int MAX_CLIENT_VAL = 10;
-			int clientVal = MIN_CLIENT_VAL + value * (MAX_CLIENT_VAL - MIN_CLIENT_VAL + 1) / 64;
-			_greenInfoBuilder.addSegment(value, clientVal, geom, dist, isLastEdge && _lastSegment);
+			//int MIN_CLIENT_VAL = 3;
+			//int MAX_CLIENT_VAL = 10;
+			int client_green_level = green_level * 100// MIN_CLIENT_VAL + green_level * (MAX_CLIENT_VAL - MIN_CLIENT_VAL + 1) / 64;
+			_greenInfoBuilder.addSegment(green_level, client_green_level, geom, dist, isLastEdge && _lastSegment);
 		}
 		
 		if (_noiseInfoBuilder != null) {
