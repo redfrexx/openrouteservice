@@ -1,7 +1,7 @@
 version: '3'
 services:
-    ors-app-meingruen-anna-gv:
-        container_name: ors-app-meingruen-anna-gv
+    ors-app-meingruen-test:
+        container_name: ors-app-meingruen-test
         ports:
             - 8082:8080
         build:
