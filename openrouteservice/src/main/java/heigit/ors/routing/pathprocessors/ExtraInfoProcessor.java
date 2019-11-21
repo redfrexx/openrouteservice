@@ -425,7 +425,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 			// FIXME should be changed when the specific bar legend for green routing is finished
 			//int MIN_CLIENT_VAL = 3;
 			//int MAX_CLIENT_VAL = 10;
-			int client_green_level = green_level * 100// MIN_CLIENT_VAL + green_level * (MAX_CLIENT_VAL - MIN_CLIENT_VAL + 1) / 64;
+			int client_green_level = green_level / 64 // MIN_CLIENT_VAL + green_level * (MAX_CLIENT_VAL - MIN_CLIENT_VAL + 1) / 64;
 			_greenInfoBuilder.addSegment(green_level, client_green_level, geom, dist, isLastEdge && _lastSegment);
 		}
 		

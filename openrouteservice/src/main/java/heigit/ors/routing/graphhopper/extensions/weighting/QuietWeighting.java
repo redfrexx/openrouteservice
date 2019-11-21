@@ -26,6 +26,7 @@ public class QuietWeighting extends FastestWeighting {
     private NoiseIndexGraphStorage _gsNoiseIndex;
     private byte[] _buffer;
     private double _weightingFactor = 1;
+    private double defaultNoiseWeight = 0.5;
 
     public QuietWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
         super(encoder, map);
@@ -62,7 +63,7 @@ public class QuietWeighting extends FastestWeighting {
             int noiseLevel = _gsNoiseIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), _buffer);
             return calcNoiseWeightFactor(noiseLevel);
         }
-        return 1.0;
+        return defaultNoiseWeight;
     }
 
     @Override

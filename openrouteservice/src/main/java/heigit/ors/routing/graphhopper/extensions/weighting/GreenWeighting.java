@@ -28,31 +28,25 @@ import heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphStorage
 public class GreenWeighting extends FastestWeighting {
     private GreenIndexGraphStorage _gsGreenIndex;
     private byte[] _buffer = new byte[1];
-    private double[] _factors = new double[totalLevel]; 
-
+    private double[] _factors = new double[totalLevel];
+    private double _weightingFactor = 1;
     private static final int totalLevel = 64;
+    private double defaultGreenWeight = 0.5;
 
     public GreenWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
         super(encoder, map);
-        
         _gsGreenIndex = GraphStorageUtils.getGraphExtension(graphStorage, GreenIndexGraphStorage.class);
-        double factor = map.getDouble("factor", 1);
-        
+        _weightingFactor = map.getDouble("factor", 1);
+        // Assign real green values [0,1] to each byte value [0,63]
         for (int i = 0; i < totalLevel; i++)
-        	_factors[i] = calcGreenWeightFactor(i, factor);
+        	_factors[i] = calcGreenWeightFactor(i);
     }
 
-    private double calcGreenWeightFactor(int level, double factor) {
-        // There is an implicit convention here:
-        // the green level range is [0, total - 1].
-        // And the @level will be transformed to a float number
-        // falling in (0, 2] linearly
-        // However, for the final green weighting,
-        // a weighting factor will be taken into account
-        // to control the impact of the "green consideration"
-        // just like an amplifier
-        double wf = (double) (level + 1) * 2.0 / totalLevel;
-        return 1.0 - (1.0 - wf) * factor;
+    private double calcGreenWeightFactor(int level) {
+        // Get real green value from byte value
+        double wf = (double) level / totalLevel;
+        // Inverse value range because high green values should yield low costs
+        return 1.0 - wf * _weightingFactor;
     }
 
     @Override
@@ -61,8 +55,7 @@ public class GreenWeighting extends FastestWeighting {
             int greenLevel = _gsGreenIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), _buffer);
             return _factors[greenLevel];
         }
-
-        return 1.0;
+        return defaultGreenWeight;
     }
 
     @Override
