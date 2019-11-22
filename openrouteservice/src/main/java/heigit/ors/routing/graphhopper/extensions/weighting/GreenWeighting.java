@@ -46,7 +46,7 @@ public class GreenWeighting extends FastestWeighting {
         // Get real green value from byte value
         double wf = (double) level / totalLevel;
         // Inverse value range because high green values should yield low costs
-        return 1.0 + 1.0 - wf * _weightingFactor;
+        return 1.0 + 1.0 - wf * _weightingFactor * 3;
     }
 
     @Override
