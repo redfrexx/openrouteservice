@@ -3,7 +3,7 @@ heigit.ors.routing.graphhopper.extensions.storages.builders.WayCategoryGraphStor
 heigit.ors.routing.graphhopper.extensions.storages.builders.WaySurfaceTypeGraphStorageBuilder
 heigit.ors.routing.graphhopper.extensions.storages.builders.HillIndexGraphStorageBuilder
 heigit.ors.routing.graphhopper.extensions.storages.builders.WheelchairGraphStorageBuilder
-heigit.ors.routing.graphhopper.extensions.storages.builders.GreenIndexGraphStorageBuilder
+heigit.ors.routing.graphhopper.extensions.storages.builders.NewGreenIndexGraphStorageBuilder
 heigit.ors.routing.graphhopper.extensions.storages.builders.NoiseIndexGraphStorageBuilder
 heigit.ors.routing.graphhopper.extensions.storages.builders.TollwaysGraphStorageBuilder
 heigit.ors.routing.graphhopper.extensions.storages.builders.TrailDifficultyScaleGraphStorageBuilder

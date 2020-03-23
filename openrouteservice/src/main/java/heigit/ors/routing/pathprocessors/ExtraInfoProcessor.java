@@ -32,7 +32,7 @@ import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersPo
 import heigit.ors.routing.graphhopper.extensions.reader.borders.CountryBordersReader;
 import heigit.ors.routing.graphhopper.extensions.storages.BordersGraphStorage;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphStorage;
+import heigit.ors.routing.graphhopper.extensions.storages.NewGreenIndexGraphStorage;
 import heigit.ors.routing.graphhopper.extensions.storages.HillIndexGraphStorage;
 import heigit.ors.routing.graphhopper.extensions.storages.NoiseIndexGraphStorage;
 import heigit.ors.routing.graphhopper.extensions.storages.OsmIdGraphStorage;
@@ -54,7 +54,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 
 	private WaySurfaceTypeGraphStorage _extWaySurface;
 	private WayCategoryGraphStorage _extWayCategory;
-	private GreenIndexGraphStorage _extGreenIndex;
+	private NewGreenIndexGraphStorage _extGreenIndex;
 	private NoiseIndexGraphStorage _extNoiseIndex;
 	private TollwaysGraphStorage _extTollways;
 	private TrailDifficultyScaleGraphStorage _extTrailDifficulty;
@@ -199,7 +199,7 @@ public class ExtraInfoProcessor extends PathProcessor {
 		}
 
 		if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.Green)) {
-			_extGreenIndex = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), GreenIndexGraphStorage.class);
+			_extGreenIndex = GraphStorageUtils.getGraphExtension(graphHopper.getGraphHopperStorage(), NewGreenIndexGraphStorage.class);
 
 			if (_extGreenIndex == null)
 				throw new Exception("GreenIndex storage is not found.");

@@ -20,45 +20,34 @@ import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import heigit.ors.routing.graphhopper.extensions.storages.GreenIndexGraphStorage;
+import heigit.ors.routing.graphhopper.extensions.storages.NewGreenIndexGraphStorage;
 
-/**
- * Created by lliu on 15/03/2017.
- */
-public class GreenWeighting extends FastestWeighting {
-    private GreenIndexGraphStorage _gsGreenIndex;
+public class NewGreenWeighting extends FastestWeighting {
+    private NewGreenIndexGraphStorage _greenIndexStorage;
     private byte[] _buffer = new byte[1];
-    private double[] _factors = new double[totalLevel];
-    private double _weightingFactor = 1;
-    private static final int totalLevel = 64;
-    private double defaultGreenWeight = 0.5;
+    private double _userWeighting;
+    private final double _defaultGreenWeight = 0.5;
+    private double _amplifyer = 1.; // amplify influence of greenness
 
-    public GreenWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
+    public NewGreenWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
         super(encoder, map);
-        _gsGreenIndex = GraphStorageUtils.getGraphExtension(graphStorage, GreenIndexGraphStorage.class);
-        _weightingFactor = map.getDouble("factor", 1);
-        // Assign real green values [0,1] to each byte value [0,63]
-        for (int i = 0; i < totalLevel; i++)
-        	_factors[i] = calcGreenWeightFactor(i);
+        _userWeighting = map.getDouble("factor", 1);
+        _greenIndexStorage = GraphStorageUtils.getGraphExtension(graphStorage, NewGreenIndexGraphStorage.class);
+        if (_greenIndexStorage == null) {
+            System.out.print("NewGreenIndexStorage not found.");
+        }
     }
 
-    private double calcGreenWeightFactor(int level) {
-        // Get real green value from byte value
-        double wf = (double) level / totalLevel;
-        // Inverse value range because high green values should yield low costs
-        return (1.0 - wf) * _weightingFactor * 20;
+    private double calcGreenWeighting(int green_index_value) {
+        return (100. - green_index_value) * 0.01 * _userWeighting * _amplifyer;
     }
 
     @Override
     public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-        if (_gsGreenIndex != null) {
-            int greenLevel = _gsGreenIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), _buffer);
-            return _factors[greenLevel];
-        }
-        return defaultGreenWeight;
+        int greenValue = _greenIndexStorage.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), _buffer);
+        return calcGreenWeighting(greenValue);
+        //return _defaultGreenWeight;
     }
-
-
 
     @Override
     public String getName() {

@@ -107,7 +107,7 @@ public class GreenIndexGraphStorage implements GraphExtension {
         if (edgesCount > 0)
             throw new AssertionError("The ORS storage must be initialized only once.");
 
-        this.orsEdges = dir.find("ext_greenindex");
+        this.orsEdges = dir.find("ext_greenindex_old");
     }
 
     /**
@@ -143,7 +143,7 @@ public class GreenIndexGraphStorage implements GraphExtension {
     @Override
     public boolean loadExisting() {
         if (!orsEdges.loadExisting())
-            throw new IllegalStateException("Unable to load storage 'ext_greenindex'. corrupt file or directory?");
+            throw new IllegalStateException("Unable to load storage 'ext_greenindex_old'. corrupt file or directory?");
 
         edgeEntryBytes = orsEdges.getHeader(0);
         edgesCount = orsEdges.getHeader(4);

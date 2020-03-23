@@ -138,7 +138,7 @@ public class ORSWeightingFactory implements WeightingFactory {
 					softWeightings.add(new AvoidHillsWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
 					break;
 				case "green":
-					softWeightings.add(new GreenWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
+					softWeightings.add(new NewGreenWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));
 					break;
 				case "quiet":
 					softWeightings.add(new QuietWeighting(encoder, getWeightingProps(weightingName, map), graphStorage));

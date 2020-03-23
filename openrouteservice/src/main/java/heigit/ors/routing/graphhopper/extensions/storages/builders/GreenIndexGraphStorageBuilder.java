@@ -159,6 +159,6 @@ public class GreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilder {
 
     @Override
     public String getName() {
-        return "GreenIndex";
+        return "GreenIndexOld";
     }
 }
