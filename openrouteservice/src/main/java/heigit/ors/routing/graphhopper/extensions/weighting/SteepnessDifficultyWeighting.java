@@ -220,6 +220,7 @@ public class SteepnessDifficultyWeighting extends FastestWeighting
     		int hillIndex = gsHillIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), revert, buffer);
 
     		if (difficultyWeights != null)
+    			//System.out.print("Steep: " + difficultyWeights[hillIndex] + "\n");
     			return difficultyWeights[hillIndex];
     	}
 

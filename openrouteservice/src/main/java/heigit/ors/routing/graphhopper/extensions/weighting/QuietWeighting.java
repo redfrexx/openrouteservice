@@ -25,34 +25,39 @@ import heigit.ors.routing.graphhopper.extensions.storages.NoiseIndexGraphStorage
 public class QuietWeighting extends FastestWeighting {
     private NoiseIndexGraphStorage _gsNoiseIndex;
     private byte[] _buffer;
-    private double _weightingFactor = 1;
+    private double _userWeighting;
     private double defaultNoiseWeight = 0.5;
 
     public QuietWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
         super(encoder, map);
         _buffer = new byte[1];
         _gsNoiseIndex = GraphStorageUtils.getGraphExtension(graphStorage, NoiseIndexGraphStorage.class);
-        _weightingFactor = map.getDouble("factor", 1);
+        _userWeighting = map.getDouble("factor", 1);
     }
 
     private double calcNoiseWeightFactor(int level) {
-        return Math.log(level * _weightingFactor * 5 + 1);
+        double _amplify = 5. / 3.;
+        double quiet_weight = (float) level * _amplify * _userWeighting;
+        //return (float) (Math.log(level) / Math.log(2)) * _userWeighting;
+        //System.out.print("Noise: " + quiet_weight + "\n");
+        return quiet_weight;
+
         /**
         if (level == 0) {
             return 0.;
         } else if (level >= ) {
-            return 1. * _weightingFactor * 2;
+            return 1. * _userWeighting * 2;
         } else {
-            return (level / 6.) * _weightingFactor * 2;
+            return (level / 6.) * _userWeighting * 2;
         }
         if ( level == 0)
        return 1;
        else if ( level <=1 )
-       return 1 + _weightingFactor * 10;
+       return 1 + _userWeighting * 10;
        else if ( level <=2 )
-       return 1 + _weightingFactor * _weightingFactor * 200;  // drop factor for noise level 2 and 3 dramatically, but still larger then the factor for noise level 1
+       return 1 + _userWeighting * _userWeighting * 200;  // drop factor for noise level 2 and 3 dramatically, but still larger then the factor for noise level 1
        else if (level <=3 )
-       return 1 + _weightingFactor * _weightingFactor * 400;
+       return 1 + _userWeighting * _userWeighting * 400;
        else
        throw new AssertionError("The noise level "+  level + " is not supported!"); **/
     }
