@@ -6,7 +6,7 @@ ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -Dinstall
 ARG APP_CONFIG=docker/conf/app.config
 ARG OSM_FILE=docker/data/highways_hd_dd_20190630.osm
 ARG NOISE_FILE=docker/data/noise_index_hd_dd.csv
-ARG GREEN_FILE=docker/data/green_index_hd_dd.csv
+ARG GREEN_FILE=docker/data/green_index_hd_dd_new.csv
 ARG JAVA_OPTS
 ARG CATALINA_OPTS
 
@@ -27,7 +27,7 @@ COPY openrouteservice /ors-core/openrouteservice
 # Copy osm data file, config and cache if provided (ors will download otherwise)
 COPY $OSM_FILE /ors-core/data/highways_hd_dd_20190630.osm
 COPY $NOISE_FILE /ors-core/data/noise_index_hd_dd.csv
-COPY $GREEN_FILE /ors-core/data/green_index_hd_dd.csv
+COPY $GREEN_FILE /ors-core/data/green_index_hd_dd_new.csv
 COPY $APP_CONFIG /ors-core/openrouteservice/src/main/resources/app.config
 
 WORKDIR /ors-core
@@ -53,4 +53,3 @@ RUN cp /ors-core/openrouteservice/target/*.war /usr/local/tomcat/webapps/ors.war
 # Start the container
 EXPOSE 8080
 CMD /usr/local/tomcat/bin/catalina.sh run
-
