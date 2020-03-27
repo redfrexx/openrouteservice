@@ -1,7 +1,7 @@
 version: '3'
 services:
-    ors-app-meingruen-anna-osm:
-        container_name: ors-app-meingruen-anna-osm
+    ors-app-new-green-5:
+        container_name: ors-app-new-green-5
         ports:
             - 8080:8080
         build:
@@ -14,7 +14,9 @@ services:
             - ./elevation_cache:/ors-core/data/elevation_cache
             - ./logs/ors/:/var/log/ors/
             - ./logs/tomcat/:/usr/local/tomcat/logs
+            - ./conf/app.config:/ors-core/openrouteservice/target/classes/app.config
+            - ./data/highways_hd_dd_20190630.osm:/ors-core/data/highways_hd_dd_20190630.osm
         environment:
-            - JAVA_OPTS=-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g
-            - CATALINA_OPTS= -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost
-
+            - BUILD_GRAPHS=False  # Forces the container to rebuild the graphs, e.g. when PBF is changed in app.config
+            - JAVA_OPTS="-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g"
+            - CATALINA_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost"

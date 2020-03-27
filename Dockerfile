@@ -10,9 +10,11 @@ ARG GREEN_FILE=docker/data/green_index_hd_dd_new.csv
 ARG JAVA_OPTS
 ARG CATALINA_OPTS
 
+# Install tomcat
+RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.32/bin/apache-tomcat-8.0.32.tar.gz -O /tmp/tomcat.tar.gz
+
 # Install required deps
-RUN apt-get update -qq
-RUN apt-get install -qq -y locales wget nano maven
+RUN apt-get update -qq && apt-get install -qq -y locales wget nano maven
 
 # Set the locale
 RUN locale-gen en_US.UTF-8
@@ -35,21 +37,14 @@ WORKDIR /ors-core
 # Build openrouteservice
 RUN mvn -q -f ./openrouteservice/pom.xml package -DskipTests
 
-# Install tomcat
-RUN mkdir /usr/local/tomcat
-RUN wget -q https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.32/bin/apache-tomcat-8.0.32.tar.gz -O /tmp/tomcat.tar.gz
-
-RUN cd /tmp && tar xvfz tomcat.tar.gz
-RUN cp -R /tmp/apache-tomcat-8.0.32/* /usr/local/tomcat/
-
-# Add tomcat custom settings if provided
-RUN touch /usr/local/tomcat/bin/setenv.sh
-RUN echo "CATALINA_OPTS=\"$CATALINA_OPTS\"" >> /usr/local/tomcat/bin/setenv.sh
-RUN echo "JAVA_OPTS=\"$JAVA_OPTS\"" >> /usr/local/tomcat/bin/setenv.sh
+RUN cd /tmp && tar xvfz tomcat.tar.gz && mkdir /usr/local/tomcat && cp -R /tmp/apache-tomcat-8.0.32/* /usr/local/tomcat/
 
 # Copy ors app into tomcat webapps
-RUN cp /ors-core/openrouteservice/target/*.war /usr/local/tomcat/webapps/ors.war
+RUN cp -f /ors-core/openrouteservice/target/*.war /usr/local/tomcat/webapps/ors.war
+
+COPY ./docker-entrypoint.sh /docker-entrypoint.sh
 
 # Start the container
 EXPOSE 8080
-CMD /usr/local/tomcat/bin/catalina.sh run
+
+ENTRYPOINT ["/bin/bash", "/docker-entrypoint.sh"]
