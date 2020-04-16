@@ -1,8 +1,6 @@
 # Openrouteservice
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[master](https://github.com/GIScience/openrouteservice)&nbsp;&nbsp;&nbsp;&nbsp; [development](https://github.com/GIScience/openrouteservice/tree/development)
-
-[![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=master)](https://travis-ci.org/GIScience/openrouteservice) [![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=development)](https://travis-ci.org/GIScience/openrouteservice)
+[![Build Status](https://travis-ci.org/GIScience/openrouteservice.svg?branch=master)](https://travis-ci.org/GIScience/openrouteservice) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=org.heigit.ors%3Aopenrouteservice&metric=alert_status&branch=master)](https://sonarcloud.io/dashboard?id=org.heigit.ors%3Aopenrouteservice)
 
 The **openrouteservice API** provides global spatial services by consuming user-generated and collaboratively collected free geographic data directly from [OpenStreetMap](http://www.openstreetmap.org). It is highly customizable, performant and written in Java.
 
@@ -13,7 +11,7 @@ The following services are available via a HTTP interface served by Tomcat.
 
 To play around with openrouteservice you may use our [demonstration server](https://maps.openrouteservice.org) which comes with both the backend and a [frontend](https://github.com/GIScience/openrouteservice-app). Or simply sign up for an [API key](https://openrouteservice.org) and fire your requests against the API directly.
 
-Please note that openrouteservice uses a forked and edited version of [graphhopper 0.10](https://github.com/GIScience/graphhopper) which can be found [here](https://github.com/GIScience/graphhopper).
+Please note that openrouteservice uses a forked and edited version of [graphhopper 0.12](https://github.com/GIScience/graphhopper) which can be found [here](https://github.com/GIScience/graphhopper).
 
 [![ors client accessibility](https://user-images.githubusercontent.com/23240110/30385487-9eac96b8-98a7-11e7-9357-afd4df8fccdf.png)](https://openrouteservice.org/reach)
 
@@ -86,7 +84,7 @@ Openrouteservice offers a set of endpoints for different spatial purposes. They 
 
 ## API Documentation
 
-For an easy and interactive way to test the api, visit our documentation at [openrouteservice.org](https://openrouteservice.org).
+For an easy and interactive way to test the api, visit our documentation at [openrouteservice.org](https://openrouteservice.org/dev/#/api-docs).
 After obtaining your key you can try out the different endpoints instantly and start firing requests.
 
 
@@ -96,6 +94,4 @@ For questions please use our [community forum](https://ask.openrouteservice.org)
 
 ## Translations
 
-If you notice any thing wrong with translations, or you want to add a new language to the ORS instructions, please add/edit files in the src/main/resources/locales folder. You can use the ors_en.resources file as a template as to what information needs to be present.
-As a guide, for each instruction there are two formats - one where there is a named place (i.e. 47 Berlinerstraße) and one without. It is important to keep the {way_name} tag in the text, but it should be moved to the correct location.
-To show ORS what language is being used, you should alter the name of the file to include the ISO identifier (i.e. for Austrian German the filename would be ors_de_AT.resources).
+If you notice any thing wrong with translations, or you want to add a new language to the ORS instructions, we have some instructions on our [wiki page](https://github.com/GIScience/openrouteservice/wiki/Contributing-Translations) about how you can submit an update. You can also look over at our [maps client GitHub](https://github.com/GIScience/openrouteservice-app/#translations) if you want to contribute the language to there aswell (adding or editing the language in the openrouteservice GitHub repo only affects the instructions - any new language also needs adding to the client).
