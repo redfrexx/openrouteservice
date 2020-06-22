@@ -43,7 +43,7 @@ public class NewGreenIndexGraphStorageBuilderTest {
     public void reset() {
         builder = new NewGreenIndexGraphStorageBuilder();
         Map _params = new HashMap();
-        _params.put("filepath", "/Users/chludwig/Development/meinGruen/code/ors_instances/openrouteservice/openrouteservice/data/test/green_index_test.csv");
+        _params.put("filepath", "./data/test/green_index_test.csv");
         //_params.put("filepath", "/Users/chludwig/Development/meinGruen/code/ors_instances/openrouteservice/openrouteservice/data/green_index_hd_dd_new.csv");
         builder.setParameters(_params);
 
