@@ -320,6 +320,15 @@ public class GenericHandler {
                 params.add(pw);
             }
 
+            if (weightings.hasShadowIndex()) {
+                ProfileWeighting pw = new ProfileWeighting("shadow");
+                float shadowFactor = weightings.getShadowIndex();
+                if (shadowFactor > 1)
+                    throw new ParameterOutOfRangeException(GenericErrorCodes.INVALID_PARAMETER_VALUE, String.format("%.2f", shadowFactor), "shadow factor", "1.0");
+                pw.addParameter("factor", String.format("%.2f", shadowFactor));
+                params.add(pw);
+            }
+
             if (weightings.hasQuietIndex()) {
                 ProfileWeighting pw = new ProfileWeighting("quiet");
                 float quietFactor = weightings.getQuietIndex();

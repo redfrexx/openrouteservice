@@ -50,6 +50,7 @@ public class ExtraInfoProcessor implements PathProcessor {
 	private WayCategoryGraphStorage extWayCategory;
 	private NewGreenIndexGraphStorage extGreenIndex;
 	private NoiseIndexGraphStorage extNoiseIndex;
+	private ShadowIndexGraphStorage extShadowIndex;
 	private TollwaysGraphStorage extTollways;
 	private TrailDifficultyScaleGraphStorage extTrailDifficulty;
 	private HillIndexGraphStorage extHillIndex;
@@ -77,7 +78,10 @@ public class ExtraInfoProcessor implements PathProcessor {
 	
 	private RouteExtraInfo noiseInfo;
 	private RouteExtraInfoBuilder noiseInfoBuilder;
-	
+
+	private RouteExtraInfo shadowInfo;
+	private RouteExtraInfoBuilder shadowInfoBuilder;
+
 	private RouteExtraInfo avgSpeedInfo;
 	private RouteExtraInfoBuilder avgSpeedInfoBuilder;
 	
@@ -209,6 +213,15 @@ public class ExtraInfoProcessor implements PathProcessor {
 				noiseInfoBuilder = new AppendableRouteExtraInfoBuilder(noiseInfo);
 			}
 
+			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.SHADOW)) {
+				extShadowIndex = GraphStorageUtils.getGraphExtension(graphHopperStorage, ShadowIndexGraphStorage.class);
+
+				if (extShadowIndex == null)
+					throw new Exception("ShadowIndex storage is not found.");
+				shadowInfo = new RouteExtraInfo("shadow");
+				shadowInfoBuilder = new AppendableRouteExtraInfoBuilder(shadowInfo);
+			}
+
 			if (includeExtraInfo(extraInfo, RouteExtraInfoFlag.OSM_ID)) {
 				extOsmId = GraphStorageUtils.getGraphExtension(graphHopperStorage, OsmIdGraphStorage.class);
 
@@ -308,6 +321,10 @@ public class ExtraInfoProcessor implements PathProcessor {
 			noiseInfoBuilder.finish();
 			extras.add(noiseInfo);
 		}
+		if (shadowInfo != null) {
+			shadowInfoBuilder.finish();
+			extras.add(shadowInfo);
+		}
 		if (tollwaysInfo != null) {
 			tollwaysInfoBuilder.finish();
 			extras.add(tollwaysInfo);
@@ -348,6 +365,8 @@ public class ExtraInfoProcessor implements PathProcessor {
 			((AppendableRouteExtraInfoBuilder) greenInfoBuilder).append((AppendableRouteExtraInfoBuilder)more.greenInfoBuilder);
 		if (noiseInfo != null)
 			((AppendableRouteExtraInfoBuilder) noiseInfoBuilder).append((AppendableRouteExtraInfoBuilder)more.noiseInfoBuilder);
+		if (shadowInfo != null)
+			((AppendableRouteExtraInfoBuilder) shadowInfoBuilder).append((AppendableRouteExtraInfoBuilder)more.shadowInfoBuilder);
 		if (tollwaysInfo != null)
 			((AppendableRouteExtraInfoBuilder) tollwaysInfoBuilder).append((AppendableRouteExtraInfoBuilder)more.tollwaysInfoBuilder);
 		if (trailDifficultyInfo != null)
@@ -449,6 +468,11 @@ public class ExtraInfoProcessor implements PathProcessor {
 		if (noiseInfoBuilder != null) {
 			int noiseLevel = extNoiseIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
 			noiseInfoBuilder.addSegment(noiseLevel, noiseLevel, geom, dist);
+		}
+
+		if (shadowInfoBuilder != null) {
+			int shadowLevel = extShadowIndex.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edge), buffer);
+			shadowInfoBuilder.addSegment(shadowLevel, shadowLevel, geom, dist);
 		}
 
 		if (osmIdInfoBuilder != null) {
