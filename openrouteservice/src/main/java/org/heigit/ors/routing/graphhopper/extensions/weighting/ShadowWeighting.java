@@ -20,33 +20,34 @@ import com.graphhopper.storage.GraphStorage;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.PMap;
 import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
-import org.heigit.ors.routing.graphhopper.extensions.storages.NewGreenIndexGraphStorage;
+import org.heigit.ors.routing.graphhopper.extensions.storages.ShadowIndexGraphStorage;
 
 public class ShadowWeighting extends FastestWeighting {
-    private NewGreenIndexGraphStorage _greenIndexStorage;
+    private ShadowIndexGraphStorage _shadowIndexStorage;
     private byte[] _buffer = new byte[1];
     private double _userWeighting;
 
     public ShadowWeighting(FlagEncoder encoder, PMap map, GraphStorage graphStorage) {
         super(encoder, map);
         _userWeighting = map.getDouble("factor", 1);
-        _greenIndexStorage = GraphStorageUtils.getGraphExtension(graphStorage, NewGreenIndexGraphStorage.class);
-        if (_greenIndexStorage == null) {
+        _shadowIndexStorage = GraphStorageUtils.getGraphExtension(graphStorage, ShadowIndexGraphStorage.class);
+        if (_shadowIndexStorage == null) {
             System.out.print("ShadowIndexStorage not found.");
         }
     }
 
-    private double calcGreenWeighting(int green_index_value) {
-        double _amplifyer = 20.; // amplify influence of greenness
-        double green_weight = (100. - green_index_value) * 0.01 * _amplifyer * _userWeighting;
-        System.out.print("Shadow: " + green_weight + "\n");
-        return green_weight;
+    private double calShadowWeighting(int shadowIndexValue) {
+        double _amplifyer = 20.; // amplify influence of shadow
+        double shadowWeight = (100. - shadowIndexValue) * 0.01 * _amplifyer * _userWeighting;
+        System.out.print("Shadow: " + shadowWeight + "\n");
+        return shadowWeight;
     }
 
     @Override
     public double calcWeight(EdgeIteratorState edgeState, boolean reverse, int prevOrNextEdgeId) {
-        int greenValue = _greenIndexStorage.getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), _buffer);
-        return calcGreenWeighting(greenValue);
+        int shadowValue = _shadowIndexStorage
+            .getEdgeValue(EdgeIteratorStateHelper.getOriginalEdge(edgeState), _buffer);
+        return calShadowWeighting(shadowValue);
         //return _defaultGreenWeight;
     }
 

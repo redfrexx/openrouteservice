@@ -47,8 +47,9 @@ public class NewGreenIndexGraphStorageBuilder extends AbstractGraphStorageBuilde
         if (_storage != null)
             throw new Exception("GraphStorageBuilder has been already initialized.");
 
-        // TODO Check if the greenindexfile exists
+        // TODO Check if the greenindex file exists
         String csvFile = parameters.get("filepath");
+        System.out.print("Green Index File: " + csvFile + "\n");
         readNoiseIndicesFromCSV(csvFile);
         _storage = new NewGreenIndexGraphStorage();
 
