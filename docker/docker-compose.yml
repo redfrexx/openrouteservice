@@ -1,9 +1,9 @@
 version: '3'
 services:
-    ors-app-meingruen-3:
-        container_name: ors-app-meingruen-3
+    ors-app-meingruen-shadow:
+        container_name: ors-app-meingruen-shadow
         ports:
-            - 80:8080
+            - 81:8080
         build:
             context: ../
             args:
