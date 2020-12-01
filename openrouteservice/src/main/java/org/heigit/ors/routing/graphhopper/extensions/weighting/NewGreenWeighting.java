@@ -37,7 +37,7 @@ public class NewGreenWeighting extends FastestWeighting {
     }
 
     private double calcGreenWeighting(int green_index_value) {
-        double _amplifyer = 20.; // amplify influence of greenness
+        double _amplifyer = 5.; // amplify influence of greenness
         double green_weight = (100. - green_index_value) * 0.01 * _amplifyer * _userWeighting;
         //System.out.print("Green: " + green_weight + "\n");
         return green_weight;
