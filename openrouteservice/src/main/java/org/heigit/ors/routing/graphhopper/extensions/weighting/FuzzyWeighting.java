@@ -27,12 +27,11 @@ public class FuzzyWeighting extends AbstractWeighting {
     /**
      * Calculates the costs of a route segment based on multiple routing criteria and the distance
      * using a linear combination of the form:
-     * cost = duration + (((criteria_1 * weight_1) + (criteria_2 * weight_2) + ... + (criteria_n * weight_n)) * duration)
+     * cost = distance + (((criteria_1 * weight_1) + (criteria_2 * weight_2) + ... + (criteria_n * weight_n)) * duration)
      */
 
     // Distance of edge
     double distance = _superWeighting.calcWeight(edgeState, reverse, prevOrNextEdgeId);
-    double duration = _superWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
 
     //double time = _superWeighting.calcMillis(edgeState, reverse, prevOrNextEdgeId);
     double[] weights = new double[_weightings.length];
@@ -46,10 +45,10 @@ public class FuzzyWeighting extends AbstractWeighting {
     //System.out.print("Health weight: " + health_weight + "\n");
 
     // Weight healthy criteria with duration or distance
-    double health_costs = (health_weight / _weightings.length) * duration;
-    //System.out.print("duration cost: " + duration + "\n");
-    //System.out.print("health cost:" + health_costs + "\n");
-    return duration + health_costs;
+    double health_costs = (health_weight / _weightings.length) * distance;
+    System.out.print("duration cost: " + distance + "\n");
+    System.out.print("health cost:" + health_costs + "\n");
+    return distance + health_costs;
   }
 
   @Override
