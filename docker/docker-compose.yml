@@ -1,7 +1,7 @@
 version: '3'
 services:
-    ors-app-meingruen-4:
-        container_name: ors-app-meingruen-4
+    ors-app-meingruen-5:
+        container_name: ors-app-meingruen-5
         ports:
             - 81:8080
         build:
