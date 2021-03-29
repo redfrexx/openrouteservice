@@ -42,7 +42,7 @@ public class ResultTest extends ServiceTest {
 
         JSONArray secondLocation = new JSONArray();
         secondLocation.put(8.684177);
-        secondLocation.put(49.411034);
+        secondLocation.put(49.410034);
 
         JSONArray unknownLocation = new JSONArray();
         unknownLocation.put(-18.215332);
@@ -114,18 +114,18 @@ public class ResultTest extends ServiceTest {
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
-                .log().all()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().all()
+                .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].geometry.coordinates[0].size()", is(52))
+                .body("features[0].geometry.coordinates[0].size()", is(49))
                 .body("features[0].properties.center.size()", is(2))
-                .body("bbox", hasItems(8.663811f, 49.409103f, 8.699429f, 49.43929f))
+                .body("bbox", hasItems(8.663323f, 49.40837f, 8.700336f, 49.439884f))
                 .body("features[0].type", is("Feature"))
                 .body("features[0].geometry.type", is("Polygon"))
                 .body("features[0].properties.group_index", is(0))
                 .body("features[0].properties.value", is(400f))
+                .body("metadata.containsKey('system_message')", is(true))
                 .statusCode(200);
 
     }
@@ -143,7 +143,6 @@ public class ResultTest extends ServiceTest {
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
-                .log().all()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .body("any { it.key == 'type' }", is(true))
@@ -168,7 +167,6 @@ public class ResultTest extends ServiceTest {
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
-                .log().all()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .statusCode(500)
@@ -189,13 +187,12 @@ public class ResultTest extends ServiceTest {
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
-                .log().all()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
-                .body("bbox[0]", is(8.663811f))
-                .body("bbox[1]", is(49.409103f))
-                .body("bbox[2]", is(8.699429f))
-                .body("bbox[3]", is(49.439289f))
+                .body("bbox[0]", is(8.663323f))
+                .body("bbox[1]", is(49.40837f))
+                .body("bbox[2]", is(8.700336f))
+                .body("bbox[3]", is(49.439884f))
                 .statusCode(200);
     }
 
@@ -213,13 +210,12 @@ public class ResultTest extends ServiceTest {
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
-                .log().all()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(both(greaterThan(6110000f)).and(lessThan(6120000f))))
-                .body("features[0].properties.reachfactor", is(0.7007f))
+                .body("features[0].properties.area", is(both(greaterThan(6590000f)).and(lessThan(6600000f))))
+                .body("features[0].properties.reachfactor", is(0.7561f))
                 .statusCode(200);
 
     }
@@ -239,13 +235,12 @@ public class ResultTest extends ServiceTest {
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
-                .log().all()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(both(greaterThan(6110000f)).and(lessThan(6120000f))))
-                .body("features[0].properties.reachfactor", is(0.7007f))
+                .body("features[0].properties.area", is(both(greaterThan(6590000f)).and(lessThan(6600000f))))
+                .body("features[0].properties.reachfactor", is(0.7561f))
                 .statusCode(200);
 
     }
@@ -265,13 +260,12 @@ public class ResultTest extends ServiceTest {
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
-                .log().all()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(both(greaterThan(6.11f)).and(lessThan(6.12f))))
-                .body("features[0].properties.reachfactor", is(0.7007f))
+                .body("features[0].properties.area", is(both(greaterThan(6.59f)).and(lessThan(6.60f))))
+                .body("features[0].properties.reachfactor", is(0.7561f))
                 .statusCode(200);
 
     }
@@ -293,12 +287,11 @@ public class ResultTest extends ServiceTest {
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
-                .log().all()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(both(greaterThan(6.11f)).and(lessThan(6.12f))))
+                .body("features[0].properties.area", is(both(greaterThan(6.59f)).and(lessThan(6.60f))))
                 .statusCode(200);
 
     }
@@ -318,13 +311,12 @@ public class ResultTest extends ServiceTest {
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
-                .log().all()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
-                .body("features[0].properties.area", is(both(greaterThan(2.36f)).and(lessThan(2.37f))))
-                .body("features[0].properties.reachfactor", is(0.7007f))
+                .body("features[0].properties.area", is(both(greaterThan(2.53f)).and(lessThan(2.55f))))
+                .body("features[0].properties.reachfactor", is(0.7561f))
                 .statusCode(200);
 
     }
@@ -344,9 +336,8 @@ public class ResultTest extends ServiceTest {
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
-                .log().all()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().all()
+                .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features.size()", is(3))
@@ -357,11 +348,11 @@ public class ResultTest extends ServiceTest {
                 .body("features[2].type", is("Feature"))
                 .body("features[2].geometry.type", is("Polygon"))
                 //.body("features[2].geometry.coordinates[0].size()", is(26))
-                .body("features[2].geometry.coordinates[0].size()", is(35))
+                .body("features[2].geometry.coordinates[0].size()", is(38))
                 .body("features[2].properties.contours.size()", is(2))
                 .body("features[2].properties.containsKey('area')", is(true))
                 //.body("features[2].properties.area", is(5824280.5f))
-                .body("features[0].properties.area", is(both(greaterThan(6110000f)).and(lessThan(6120000f))))
+                .body("features[0].properties.area", is(both(greaterThan(6590000f)).and(lessThan(6600000f))))
                 .body("features[2].properties.contours[0][0]", is(0))
                 .body("features[2].properties.contours[0][1]", is(0))
                 .body("features[2].properties.contours[1][0]", is(1))
@@ -388,7 +379,6 @@ public class ResultTest extends ServiceTest {
                 .pathParam("profile", getParameter("cyclingProfile"))
                 .body(body.toString())
                 .when()
-                .log().all()
                 .post(getEndPointPath() + "/{profile}/geojson")
                 .then()
                 .body("any { it.key == 'type' }", is(true))
@@ -405,7 +395,7 @@ public class ResultTest extends ServiceTest {
                 .body(body.toString())
                 .when()
                 .post(getEndPointPath() + "/{profile}/geojson")
-                .then().log().all()
+                .then()
                 .body("any { it.key == 'type' }", is(true))
                 .body("any { it.key == 'features' }", is(true))
                 .body("features[0].geometry.coordinates[0].size", is(19))

@@ -20,10 +20,11 @@ import com.graphhopper.util.PointList;
 import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
-import org.heigit.ors.exceptions.InternalServerException;
-import org.heigit.ors.exceptions.PointNotFoundException;
-import org.heigit.ors.exceptions.RouteNotFoundException;
-import org.heigit.ors.exceptions.ServerLimitExceededException;
+import org.heigit.ors.api.requests.routing.RouteRequest;
+import org.heigit.ors.centrality.CentralityErrorCodes;
+import org.heigit.ors.centrality.CentralityRequest;
+import org.heigit.ors.centrality.CentralityResult;
+import org.heigit.ors.exceptions.*;
 import org.heigit.ors.isochrones.IsochroneMap;
 import org.heigit.ors.isochrones.IsochroneSearchParameters;
 import org.heigit.ors.mapmatching.MapMatchingRequest;
@@ -36,9 +37,13 @@ import org.heigit.ors.routing.pathprocessors.ExtraInfoProcessor;
 import org.heigit.ors.services.routing.RoutingServiceSettings;
 import org.heigit.ors.util.FormatUtility;
 import org.heigit.ors.util.RuntimeUtility;
+import org.heigit.ors.util.StringUtility;
 import org.heigit.ors.util.TimeUtility;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -106,7 +111,7 @@ public class RoutingProfileManager {
             executor.shutdown();
             loadCntx.releaseElevationProviderCacheAfterAllVehicleProfilesHaveBeenProcessed();
 
-            LOGGER.info("Graphs were prepaired in " + TimeUtility.getElapsedTime(startTime, true) + ".");
+            LOGGER.info("Graphs were prepared in " + TimeUtility.getElapsedTime(startTime, true) + ".");
         } catch (Exception ex) {
             LOGGER.error("Failed to prepare graphs.", ex);
         }
@@ -174,6 +179,7 @@ public class RoutingProfileManager {
 
                     LOGGER.info("Total time: " + TimeUtility.getElapsedTime(startTime, true) + ".");
                     LOGGER.info("========================================================================");
+                    createRunFile();
 
                     if (rmc.getUpdateConfig().getEnabled()) {
                         profileUpdater = new RoutingProfilesUpdater(rmc.getUpdateConfig(), routeProfiles);
@@ -226,6 +232,14 @@ public class RoutingProfileManager {
 
         RoutingProfile rp = getRouteProfile(req, false);
         RouteSearchParameters searchParams = req.getSearchParameters();
+        RouteProfileConfiguration config = rp.getConfiguration();
+
+        if (config.getMaximumDistanceRoundTripRoutes() != 0 && config.getMaximumDistanceRoundTripRoutes() < searchParams.getRoundTripLength()) {
+            throw new ServerLimitExceededException(
+                    RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT,
+                    String.format("The requested route length must not be greater than %s meters.", config.getMaximumDistanceRoundTripRoutes())
+            );
+        }
 
         Coordinate[] coords = req.getCoordinates();
         Coordinate c0 = coords[0];
@@ -274,6 +288,9 @@ public class RoutingProfileManager {
                 if (obj instanceof ExtraInfoProcessor) {
                     if (extraInfoProcessor == null) {
                         extraInfoProcessor = (ExtraInfoProcessor)obj;
+                        if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor)obj).getSkippedExtraInfo())) {
+                            gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor)obj).getSkippedExtraInfo());
+                        }
                     } else {
                         extraInfoProcessor.appendData((ExtraInfoProcessor)obj);
                     }
@@ -286,7 +303,7 @@ public class RoutingProfileManager {
         routes.add(gr);
 
         List<RouteExtraInfo> extraInfos = extraInfoProcessor != null ? extraInfoProcessor.getExtras() : null;
-            return new RouteResultBuilder().createRouteResults(routes, req, extraInfos);
+        return new RouteResultBuilder().createRouteResults(routes, req, new List[]{extraInfos});
     }
 
     public RouteResult[] computeRoute(RoutingRequest req) throws Exception {
@@ -317,7 +334,8 @@ public class RoutingProfileManager {
             throw new InternalServerException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, "Alternative routes algorithm does not support more than two way points.");
         }
 
-        ExtraInfoProcessor extraInfoProcessor = null;
+        int numberOfExpectedExtraInfoProcessors = req.getSearchParameters().getAlternativeRoutesCount() < 0 ? 1 : req.getSearchParameters().getAlternativeRoutesCount();
+        ExtraInfoProcessor[] extraInfoProcessors = new ExtraInfoProcessor[numberOfExpectedExtraInfoProcessors];
 
         for (int i = 1; i <= nSegments; ++i) {
             c1 = coords[i];
@@ -401,18 +419,30 @@ public class RoutingProfileManager {
                 }
             }
 
-            try {
-                for (Object obj : gr.getReturnObjects()) {
-                    if (obj instanceof ExtraInfoProcessor) {
-                        if (extraInfoProcessor == null) {
-                            extraInfoProcessor = (ExtraInfoProcessor)obj;
-                        } else {
-                            extraInfoProcessor.appendData((ExtraInfoProcessor)obj);
+            if (numberOfExpectedExtraInfoProcessors > 1) {
+                int extraInfoProcessorIndex = 0;
+                for (Object o : gr.getReturnObjects()) {
+                    if (o instanceof ExtraInfoProcessor) {
+                        extraInfoProcessors[extraInfoProcessorIndex] = (ExtraInfoProcessor)o;
+                        extraInfoProcessorIndex++;
+                        if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor)o).getSkippedExtraInfo())) {
+                            gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor)o).getSkippedExtraInfo());
                         }
                     }
                 }
-            } catch (Exception e) {
-                LOGGER.error(e);
+            } else {
+                for (Object o : gr.getReturnObjects()) {
+                    if (o instanceof ExtraInfoProcessor) {
+                        if (extraInfoProcessors[0] == null) {
+                            extraInfoProcessors[0] = (ExtraInfoProcessor)o;
+                            if (!StringUtility.isNullOrEmpty(((ExtraInfoProcessor)o).getSkippedExtraInfo())) {
+                                gr.getHints().put("skipped_extra_info", ((ExtraInfoProcessor)o).getSkippedExtraInfo());
+                            }
+                        } else {
+                            extraInfoProcessors[0].appendData((ExtraInfoProcessor)o);
+                        }
+                    }
+                }
             }
 
             prevResp = gr;
@@ -420,7 +450,13 @@ public class RoutingProfileManager {
             c0 = c1;
         }
         routes = enrichDirectRoutesTime(routes);
-        List<RouteExtraInfo> extraInfos = extraInfoProcessor != null ? extraInfoProcessor.getExtras() : null;
+
+        List<RouteExtraInfo>[] extraInfos = new List[numberOfExpectedExtraInfoProcessors];
+        int i = 0;
+        for (ExtraInfoProcessor e : extraInfoProcessors) {
+            extraInfos[i] = e != null ? e.getExtras() : null;
+            i++;
+        }
         return new RouteResultBuilder().createRouteResults(routes, req, extraInfos);
     }
 
@@ -491,8 +527,9 @@ public class RoutingProfileManager {
         RouteSearchParameters searchParams = req.getSearchParameters();
         int profileType = searchParams.getProfileType();
 
-        boolean fallbackAlgorithm = searchParams.requiresFallbackAlgorithm();
-        boolean dynamicWeights = searchParams.requiresDynamicWeights();
+        boolean fallbackAlgorithm = searchParams.requiresFullyDynamicWeights();
+        boolean dynamicWeights = searchParams.requiresDynamicPreprocessedWeights();
+        boolean useAlternativeRoutes = searchParams.getAlternativeRoutesCount() > 1;
 
         RoutingProfile rp = routeProfiles.getRouteProfile(profileType, !dynamicWeights);
 
@@ -519,6 +556,7 @@ public class RoutingProfileManager {
                     || (fallbackAlgorithm && config.getMaximumDistanceAvoidAreas() > 0)) {
                 DistanceCalc distCalc = Helper.DIST_EARTH;
 
+                List<Integer> skipSegments = req.getSkipSegments();
                 Coordinate c0 = coords[0];
                 Coordinate c1;
                 double totalDist = 0.0;
@@ -529,26 +567,32 @@ public class RoutingProfileManager {
                         totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
                     }
                 } else {
-                    if (nCoords == 2) {
-                        c1 = coords[1];
-                        totalDist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
-                    } else {
-                        double dist = 0;
-                        for (int i = 1; i < nCoords; i++) {
-                            c1 = coords[i];
-                            dist = distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
-                            totalDist += dist;
-                            c0 = c1;
+                    for (int i = 1; i < nCoords; i++) {
+                        c1 = coords[i];
+                        if (!skipSegments.contains(i)) { // ignore skipped segments
+                            totalDist += distCalc.calcDist(c0.y, c0.x, c1.y, c1.x);
                         }
+                        c0 = c1;
                     }
                 }
 
                 if (config.getMaximumDistance() > 0 && totalDist > config.getMaximumDistance())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("The approximated route distance must not be greater than %s meters.", Double.toString(config.getMaximumDistance())));
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("The approximated route distance must not be greater than %s meters.", config.getMaximumDistance()));
                 if (dynamicWeights && config.getMaximumDistanceDynamicWeights() > 0 && totalDist > config.getMaximumDistanceDynamicWeights())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("By dynamic weighting, the approximated distance of a route segment must not be greater than %s meters.", Double.toString(config.getMaximumDistanceDynamicWeights())));
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("By dynamic weighting, the approximated distance of a route segment must not be greater than %s meters.", config.getMaximumDistanceDynamicWeights()));
                 if (fallbackAlgorithm && config.getMaximumDistanceAvoidAreas() > 0 && totalDist > config.getMaximumDistanceAvoidAreas())
-                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("With these options, the approximated route distance must not be greater than %s meters.", Double.toString(config.getMaximumDistanceAvoidAreas())));
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("With these options, the approximated route distance must not be greater than %s meters.", config.getMaximumDistanceAvoidAreas()));
+                if (useAlternativeRoutes && config.getMaximumDistanceAlternativeRoutes() > 0 && totalDist > config.getMaximumDistanceAlternativeRoutes())
+                    throw new ServerLimitExceededException(RoutingErrorCodes.REQUEST_EXCEEDS_SERVER_LIMIT, String.format("The approximated route distance must not be greater than %s meters for use with the alternative Routes algorithm.", config.getMaximumDistanceAlternativeRoutes()));
+            }
+        }
+
+        if(searchParams.hasMaximumSpeed()){
+            if(searchParams.getMaximumSpeed() < config.getMaximumSpeedLowerBound()) {
+                throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_MAXIMUM_SPEED, String.valueOf(searchParams.getMaximumSpeed()), "The maximum speed must not be lower than " + config.getMaximumSpeedLowerBound() + " km/h.");
+            }
+            if(RoutingProfileCategory.getFromEncoder(rp.getGraphhopper().getEncodingManager()) != RoutingProfileCategory.DRIVING){
+                throw new ParameterValueException(RoutingErrorCodes.INCOMPATIBLE_PARAMETERS, "The maximum speed feature can only be used with cars and heavy vehicles.");
             }
         }
 
@@ -579,4 +623,21 @@ public class RoutingProfileManager {
         return rp.computeMatrix(req);
     }
 
+    public CentralityResult computeCentrality(CentralityRequest req) throws Exception {
+        RoutingProfile rp = routeProfiles.getRouteProfile((req.getProfileType()));
+
+        if (rp == null)
+            throw new InternalServerException(CentralityErrorCodes.UNKNOWN, "Unable to find an appropriate routing profile.");
+        return rp.computeCentrality(req);
+    }
+
+    public void createRunFile() {
+        File file = new File("ors.run");
+        try (FileWriter fw = new FileWriter(file)) {
+            fw.write("ORS init complete: "+ Instant.now().toString() + "\n");
+            fw.flush();
+        } catch(Exception ex) {
+            LOGGER.warn("Failed to write ors.run file, this might cause problems with automated testing.");
+        }
+    }
 }

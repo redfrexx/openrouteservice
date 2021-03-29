@@ -64,7 +64,9 @@ public class APIEnums {
         TRAIL_DIFFICULTY("traildifficulty"),
         OSM_ID("osmid"),
         ROAD_ACCESS_RESTRICTIONS("roadaccessrestrictions"),
-        COUNTRY_INFO("countryinfo");
+        COUNTRY_INFO("countryinfo"),
+        GREEN("green"),
+        NOISE("noise");
 
         private final String value;
 
@@ -141,6 +143,28 @@ public class APIEnums {
         public String toString() {
             return value;
         }
+    }
+
+    @ApiModel
+    public enum CentralityResponseType {
+        JSON("json");
+
+        private final String value;
+
+        CentralityResponseType(String value) { this.value = value; }
+
+        @JsonCreator
+        public static CentralityResponseType forValue(String v) throws ParameterValueException {
+            for (CentralityResponseType enumItem: CentralityResponseType.values()) {
+                if (enumItem.value.equals(v))
+                    return enumItem;
+            }
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "format", v);
+        }
+
+        @Override
+        @JsonValue
+        public String toString() { return value; }
     }
 
     @ApiModel
@@ -298,17 +322,36 @@ public class APIEnums {
 
     public enum Languages {
         DE("de"),
+        DE_DE("de-de"),
         EN("en"),
         EN_US("en-us"),
         ES("es"),
+        ES_ES("es-es"),
         FR("fr"),
+        FR_FR("fr-fr"),
         GR("gr"),
+        GR_GR("gr-gr"),
+        HE("he"),
+        HE_IL("he-il"),
         HU("hu"),
+        HU_HU("hu-hu"),
+        ID("id"),
+        ID_ID("id-id"),
         IT("it"),
+        IT_IT("it-it"),
+        JA("ja"),
+        JA_JP("ja-jp"),
         NE("ne"),
+        NE_NP("ne-np"),
         NL("nl"),
+        NL_NL("nl-nl"),
+        PL("pl"),
+        PL_PL("pl-pl"),
         PT("pt"),
+        PT_PT("pt-pt"),
         RU("ru"),
+        RU_RU("ru-ru"),
+        ZH("zh"),
         ZH_CN("zh-cn");
 
         private final String value;

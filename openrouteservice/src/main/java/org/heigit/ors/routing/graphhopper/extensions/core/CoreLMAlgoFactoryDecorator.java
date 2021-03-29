@@ -155,7 +155,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
      */
     public CoreLMAlgoFactoryDecorator setWeightingsAsStrings(List<String> weightingList) {
         if (weightingList.isEmpty())
-            throw new IllegalArgumentException("It is not allowed to pass an emtpy weightingList");
+            throw new IllegalArgumentException("It is not allowed to pass an empty weightingList");
 
         weightingsAsStrings.clear();
         for (String strWeighting : weightingList) {
@@ -250,7 +250,7 @@ public class CoreLMAlgoFactoryDecorator implements RoutingAlgorithmFactoryDecora
         for (final PrepareCoreLandmarks plm : preparations) {
             counter++;
             final int tmpCounter = counter;
-            final String name = AbstractWeighting.weightingToFileName(plm.getWeighting(), false);
+            final String name = AbstractWeighting.weightingToFileName(plm.getWeighting());
             completionService.submit(() -> {
                 if (plm.loadExisting())
                     return;

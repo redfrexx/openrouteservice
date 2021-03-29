@@ -17,8 +17,10 @@ package org.heigit.ors.routing.graphhopper.extensions.flagencoders;
 
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.profiles.BooleanEncodedValue;
 import com.graphhopper.routing.profiles.EncodedValue;
-import com.graphhopper.routing.profiles.FactorizedDecimalEncodedValue;
+import com.graphhopper.routing.profiles.SimpleBooleanEncodedValue;
+import com.graphhopper.routing.profiles.UnsignedDecimalEncodedValue;
 import com.graphhopper.routing.util.EncodedValueOld;
 import com.graphhopper.routing.util.EncodingManager;
 import com.graphhopper.storage.IntsRef;
@@ -39,8 +41,6 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     private static final double ACCELERATION_SPEED_CUTOFF_MAX = 80.0;
     private static final double ACCELERATION_SPEED_CUTOFF_MIN = 20.0;
     public static final int AVERAGE_SECS_TO_100_KMPH = 10;
-    public static final String KEY_ACCESS = "access";
-    public static final String KEY_DESTINATION = "destination";
     public static final String KEY_MOTORWAY_LINK = "motorway_link";
     public static final String KEY_RESIDENTIAL = "residential";
     protected SpeedLimitHandler speedLimitHandler;
@@ -66,11 +66,13 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     protected Map<String, Integer> badSurfaceSpeedMap;
     protected Map<String, Integer> defaultSpeedMap;
 
+    private BooleanEncodedValue conditionalEncoder;
+    private BooleanEncodedValue conditionalSpeedEncoder;
 
     VehicleFlagEncoder(int speedBits, double speedFactor, int maxTurnCosts) {
         super(speedBits, speedFactor, maxTurnCosts);
 
-        restrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", KEY_ACCESS));
+        restrictions.addAll(Arrays.asList("motorcar", "motor_vehicle", "vehicle", "access"));
 
         restrictedValues.add("private");
         restrictedValues.add("no");
@@ -79,7 +81,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
 
         intendedValues.add("yes");
         intendedValues.add("permissive");
-        intendedValues.add(KEY_DESTINATION);  // This is needed to allow the passing of barriers that are marked as destination
+        intendedValues.add("destination");  // This is needed to allow the passing of barriers that are marked as destination
 
         potentialBarriers.add("gate");
         potentialBarriers.add("lift_gate");
@@ -170,8 +172,12 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
     public void createEncodedValues(List<EncodedValue> registerNewEncodedValue, String prefix, int index) {
         // first two bits are reserved for route handling in superclass
         super.createEncodedValues(registerNewEncodedValue, prefix, index);
-        speedEncoder = new FactorizedDecimalEncodedValue("average_speed", speedBits, speedFactor, speedTwoDirections);
+        speedEncoder = new UnsignedDecimalEncodedValue("average_speed", speedBits, speedFactor, speedTwoDirections);
         registerNewEncodedValue.add(speedEncoder);
+        // FIXME: shouldn't this be directional?
+        registerNewEncodedValue.add(conditionalEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, "conditional_access"), false));
+        registerNewEncodedValue.add(conditionalSpeedEncoder = new SimpleBooleanEncodedValue(EncodingManager.getKey(prefix, "conditional_speed"), false));
+
     }
 
     @Override
@@ -194,6 +200,14 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             // get assumed speed from highway type
             double speed = getSpeed(way);
             speed = applyMaxSpeed(way, speed);
+
+            // TODO: save conditional speeds only if their value is different from the default speed
+            if (getConditionalSpeedInspector()!=null && getConditionalSpeedInspector().hasConditionalSpeed(way))
+                if (getConditionalSpeedInspector().hasLazyEvaluatedConditions())
+                    conditionalSpeedEncoder.setBool(false, edgeFlags, true);
+                else
+                    // conditional maxspeed overrides unconditional one
+                    speed = applyConditionalSpeed(getConditionalSpeedInspector().getTagValue(), speed);
 
             speed = getSurfaceSpeed(way, speed);
 
@@ -246,6 +260,9 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
                 accessEnc.setBool(false, edgeFlags, true);
                 accessEnc.setBool(true, edgeFlags, true);
             }
+
+            if (access.isConditional())
+                conditionalEncoder.setBool(false, edgeFlags, true);
         } else {
             double ferrySpeed = getFerrySpeed(way);
             accessEnc.setBool(false, edgeFlags, true);
@@ -254,11 +271,13 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             setSpeed(true, edgeFlags, ferrySpeed);
         }
 
-        for (String restriction : restrictions) {
-            if (way.hasTag(restriction, KEY_DESTINATION) && destinationSpeed != -1) {
-                // This is problematic as Speed != Time
-                speedEncoder.setDecimal(false, edgeFlags, destinationSpeed);
-                speedEncoder.setDecimal(true, edgeFlags, destinationSpeed);
+        if (destinationSpeed != -1) {
+            for (String restriction : restrictions) {
+                if (way.hasTag(restriction, "destination")) {
+                    // This is problematic as Speed != Time
+                    speedEncoder.setDecimal(false, edgeFlags, destinationSpeed);
+                    speedEncoder.setDecimal(true, edgeFlags, destinationSpeed);
+                }
             }
         }
 
@@ -320,13 +339,6 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
             }
         }
 
-        if (way.hasTag(KEY_ACCESS)) // Runge  //https://www.openstreetmap.org/way/132312559
-        {
-            String accessTag = way.getTag(KEY_ACCESS);
-            if (KEY_DESTINATION.equals(accessTag))
-                return 1;
-        }
-
         return speed;
     }
 
@@ -353,7 +365,7 @@ public abstract class VehicleFlagEncoder extends ORSAbstractFlagEncoder {
         String highwayValue = way.getTag(KEY_HIGHWAY);
         // for now only motorway links
         if (KEY_MOTORWAY_LINK.equals(highwayValue)) {
-            String destination = way.getTag(KEY_DESTINATION);
+            String destination = way.getTag("destination");
             if (!Helper.isEmpty(destination)) {
                 int counter = 0;
                 for (String d : destination.split(";")) {

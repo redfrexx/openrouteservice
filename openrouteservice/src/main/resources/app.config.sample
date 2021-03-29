@@ -26,6 +26,30 @@
           { "profiles": "any", "value": 18000 },
           { "profiles": "driving-car, driving-hgv", "value": 3600 }
         ],
+        "fastisochrones": {
+          "maximum_range_distance": [
+            { "profiles": "any", "value": 50000 },
+            { "profiles": "driving-car, driving-hgv", "value": 500000 }
+          ],
+          "maximum_range_time": [
+            { "profiles": "any", "value": 18000 },
+            { "profiles": "driving-car, driving-hgv", "value": 10800 }
+          ],
+          "profiles": {
+            "default_params": {
+              "enabled": false,
+              "threads": 12,
+              "weightings": "recommended",
+              "maxcellnodes": 5000
+            },
+            "profile-vehicles-hgv": {
+              "enabled": true,
+              "threads": 12,
+              "weightings": "recommended, shortest",
+              "maxcellnodes": 5000
+            }
+          }
+        },
         "maximum_intervals": 10,
         "maximum_locations": 2,
         "allow_compute_area": true
@@ -38,6 +62,7 @@
         "sources": ["openrouteservice/src/main/files/heidelberg.osm.gz"],
         "init_threads": 2,
         "attribution": "openrouteservice.org, OpenStreetMap contributors",
+        "elevation_preprocessed": false,
         "profiles": {
           "active": [
             "car",
@@ -62,6 +87,12 @@
             "maximum_distance_avoid_areas": 100000,
             "maximum_waypoints": 50,
             "maximum_snapping_radius": 400,
+            "maximum_avoid_polygon_area": 200000000,
+            "maximum_avoid_polygon_extent": 20000,
+            "maximum_distance_alternative_routes": 100000,
+            "maximum_alternative_routes": 3,
+            "maximum_distance_round_trip_routes": 100000,
+            "maximum_speed_lower_bound": 80,
             "preparation": {
               "min_network_size": 200,
               "min_one_way_network_size": 200,
@@ -70,7 +101,7 @@
                 "lm": {
                   "enabled": true,
                   "threads": 1,
-                  "weightings": "fastest,shortest",
+                  "weightings": "recommended,shortest",
                   "landmarks": 16
                 }
               }
@@ -157,18 +188,18 @@
                   "ch": {
                     "enabled": true,
                     "threads": 1,
-                    "weightings": "fastest"
+                    "weightings": "recommended"
                   },
                   "lm": {
                     "enabled": true,
                     "threads": 1,
-                    "weightings": "fastest,shortest",
+                    "weightings": "recommended,shortest",
                     "landmarks": 16
                   },
                   "core": {
                     "enabled": true,
                     "threads": 1,
-                    "weightings": "fastest,shortest",
+                    "weightings": "recommended,shortest",
                     "landmarks": 64,
                     "lmsets": "highways;allow_all"
                   }
@@ -302,6 +333,37 @@
       "level_file": "DEBUG_LOGGING.json",
       "location": "/var/log/ors",
       "stdout": true
-    }
+    },
+    "system_message": [
+        {
+            "active": false,
+            "text": "This message would be sent with every routing bike fastest request",
+            "condition": {
+                "request_service": "routing",
+                "request_profile": "cycling-regular,cycling-mountain,cycling-road,cycling-electric",
+                "request_preference": "fastest"
+            }
+        },
+        {
+            "active": false,
+            "text": "This message would be sent with every request for geojson response",
+            "condition": {
+                "api_format": "geojson"
+            }
+        },
+        {
+            "active": false,
+            "text": "This message would be sent with every request on API v1 from January 2020 until June 2050",
+            "condition": {
+                "api_version": 1,
+                "time_after": "2020-01-01T00:00:00Z",
+                "time_before": "2050-06-01T00:00:00Z"
+            }
+        },
+        {
+            "active": false,
+            "text": "This message would be sent with every request"
+        }
+    ]
   }
 }
