@@ -1,7 +1,7 @@
 version: '3'
 services:
-    ors-app-meingruen-4:
-        container_name: ors-app-meingruen-4
+    ors-app-meingruen-shadow-trees:
+        container_name: ors-app-meingruen-shadow-trees
         ports:
             - 81:8080
         build:

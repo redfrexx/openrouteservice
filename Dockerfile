@@ -7,7 +7,7 @@ ARG APP_CONFIG=docker/conf/app.config
 ARG OSM_FILE=docker/data/highways_hd_dd_20190630.osm
 ARG NOISE_FILE=docker/data/noise_index_hd_dd.csv
 ARG GREEN_FILE=docker/data/green_index_hd_dd_new.csv
-ARG SHADOW_FILE=docker/data/streets_shadow_dd_hd-with-trees.csv
+ARG SHADOW_FILE=docker/data/shadow_hd_dd_2021.csv
 ARG JAVA_OPTS
 ARG CATALINA_OPTS
 
@@ -31,7 +31,7 @@ COPY openrouteservice /ors-core/openrouteservice
 COPY $OSM_FILE /ors-core/data/highways_hd_dd_20190630.osm
 COPY $NOISE_FILE /ors-core/data/noise_index_hd_dd.csv
 COPY $GREEN_FILE /ors-core/data/green_index_hd_dd_new.csv
-COPY $SHADOW_FILE /ors-core/data/streets_shadow_dd_hd-with-trees.csv
+COPY $SHADOW_FILE /ors-core/data/shadow_hd_dd_2021.csv
 COPY $APP_CONFIG /ors-core/openrouteservice/src/main/resources/app.config
 
 WORKDIR /ors-core
