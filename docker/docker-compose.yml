@@ -1,11 +1,11 @@
 version: '2.4'
 services:
   ors-app-meingruen-final:
-    container_name: ors-app-final
+    container_name: ors-app-meingruen-final
     ports:
       - 81:8080
       - 9001:9001
-    image: openrouteservice/openrouteservice:latest
+    image: openrouteservice/openrouteservice:meingruen-final
     build:
         context: ../
         args:
