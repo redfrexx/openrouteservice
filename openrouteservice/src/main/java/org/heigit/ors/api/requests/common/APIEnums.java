@@ -147,6 +147,28 @@ public class APIEnums {
     }
 
     @ApiModel
+    public enum CentralityResponseType {
+        JSON("json");
+
+        private final String value;
+
+        CentralityResponseType(String value) { this.value = value; }
+
+        @JsonCreator
+        public static CentralityResponseType forValue(String v) throws ParameterValueException {
+            for (CentralityResponseType enumItem: CentralityResponseType.values()) {
+                if (enumItem.value.equals(v))
+                    return enumItem;
+            }
+            throw new ParameterValueException(INVALID_PARAMETER_VALUE, "format", v);
+        }
+
+        @Override
+        @JsonValue
+        public String toString() { return value; }
+    }
+
+    @ApiModel
     public enum VehicleType {
         HGV("hgv"),
         BUS("bus"),
@@ -318,12 +340,18 @@ public class APIEnums {
         ID_ID("id-id"),
         IT("it"),
         IT_IT("it-it"),
+        JA("ja"),
+        JA_JP("ja-jp"),
         NE("ne"),
         NE_NP("ne-np"),
         NL("nl"),
         NL_NL("nl-nl"),
+        PL("pl"),
+        PL_PL("pl-pl"),
         PT("pt"),
         PT_PT("pt-pt"),
+        TR("tr"),
+        TR_TR("tr-tr"),
         RU("ru"),
         RU_RU("ru-ru"),
         ZH("zh"),

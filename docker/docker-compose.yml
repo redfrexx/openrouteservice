@@ -1,23 +1,26 @@
-version: '3'
+version: '2.4'
 services:
-    ors-app-meingruen-shadow-trees:
-        container_name: ors-app-meingruen-shadow-trees
-        ports:
-            - 81:8080
-        build:
-            context: ../
-            args:
-                APP_CONFIG: ./docker/conf/app.config
-                OSM_FILE: ./docker/data/highways_hd_dd_20190630.osm
-        volumes:
-            - ./graphs:/ors-core/data/graphs
-            - ./elevation_cache:/ors-core/data/elevation_cache
-            - ./logs/ors/:/var/log/ors/
-            - ./logs/tomcat/:/usr/local/tomcat/logs
-            - ./conf/app.config:/ors-core/openrouteservice/target/classes/app.config
-            - ./data/highways_hd_dd_20190630.osm:/ors-core/data/highways_hd_dd_20190630.osm
-        restart: unless-stopped
-        environment:
-            - BUILD_GRAPHS=False  # Forces the container to rebuild the graphs, e.g. when PBF is changed in app.config
-            - JAVA_OPTS="-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g"
-            - CATALINA_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost"
+  ors-app-meingruen-final:
+    container_name: ors-app-final
+    ports:
+      - 81:8080
+      - 9001:9001
+    image: openrouteservice/openrouteservice:latest
+    build:
+        context: ../
+        args:
+            APP_CONFIG: ./docker/conf/app.config
+            OSM_FILE: ./docker/data/highways_hd_dd_20190630.osm
+    volumes:
+      - ./graphs:/ors-core/data/graphs
+      - ./elevation_cache:/ors-core/data/elevation_cache
+      - ./logs/ors:/var/log/ors
+      - ./logs/tomcat:/usr/local/tomcat/logs
+      - ./conf:/ors-conf
+      - ./data/highways_hd_dd_20190630.osm:/ors-core/data/highways_hd_dd_20190630.osm
+      #- ./your_osm.pbf:/ors-core/data/osm_file.pbf
+    restart: unless-stopped
+    environment:
+      - BUILD_GRAPHS=False  # Forces the container to rebuild the graphs, e.g. when PBF is changed
+      - "JAVA_OPTS=-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseG1GC -XX:+ScavengeBeforeFullGC -XX:ParallelGCThreads=4 -Xms1g -Xmx2g"
+      - "CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9001 -Dcom.sun.management.jmxremote.rmi.port=9001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost"

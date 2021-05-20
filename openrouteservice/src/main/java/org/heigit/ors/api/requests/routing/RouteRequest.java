@@ -25,7 +25,7 @@ import org.heigit.ors.exceptions.ParameterValueException;
 import org.heigit.ors.routing.RoutingErrorCodes;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,6 +57,9 @@ public class RouteRequest {
     public static final String PARAM_SIMPLIFY_GEOMETRY = "geometry_simplify";
     public static final String PARAM_SKIP_SEGMENTS = "skip_segments";
     public static final String PARAM_ALTERNATIVE_ROUTES = "alternative_routes";
+    public static final String PARAM_DEPARTURE = "departure";
+    public static final String PARAM_ARRIVAL = "arrival";
+    public static final String PARAM_MAXIMUM_SPEED = "maximum_speed";
 
     @ApiModelProperty(name = PARAM_ID, value = "Arbitrary identification string of the request reflected in the meta information.",
             example = "routing_request")
@@ -75,8 +78,8 @@ public class RouteRequest {
     private APIEnums.Profile profile;
 
     @ApiModelProperty(name = PARAM_PREFERENCE,
-            value = "Specifies the route preference. CUSTOM_KEYS:{'apiDefault':'fastest'}",
-            example = "fastest")
+            value = "Specifies the route preference. CUSTOM_KEYS:{'apiDefault':'recommended'}",
+            example = "recommended")
     @JsonProperty(value = PARAM_PREFERENCE)
     private APIEnums.RoutePreference routePreference;
     @JsonIgnore
@@ -175,8 +178,8 @@ public class RouteRequest {
     private boolean hasBearings = false;
 
     @ApiModelProperty(name = PARAM_CONTINUE_STRAIGHT,
-            value = "Forces the route to keep going straight at waypoints restricting uturns there even if it would be faster. This setting will work for all profiles except for `driving-*`. " +
-            "CUSTOM_KEYS:{'apiDefault':'true','validWhen':{'ref':'profile','valueNot':['driving-*']}}",
+            value = "Forces the route to keep going straight at waypoints restricting uturns there even if it would be faster." +
+            "CUSTOM_KEYS:{'apiDefault':'false'}",
             example = "false")
     @JsonProperty(value = PARAM_CONTINUE_STRAIGHT)
     private boolean continueStraightAtWaypoints;
@@ -208,7 +211,7 @@ public class RouteRequest {
 
     @ApiModelProperty(name = PARAM_OPTIONS,
             value = "For advanced options formatted as json object. For structure refer to the [these examples](https://github.com/GIScience/openrouteservice-docs#examples).",
-            example = "{\"maximum_speed\": 100}")
+            example = "{\"avoid_borders\":\"controlled\"}")
     @JsonProperty(PARAM_OPTIONS)
     private RouteRequestOptions routeOptions;
     @JsonIgnore
@@ -239,12 +242,37 @@ public class RouteRequest {
     @JsonIgnore
     private boolean hasSkipSegments = false;
 
-    @ApiModelProperty(name = PARAM_ALTERNATIVE_ROUTES, value = "Specifies whether alternative routes are computed, and parameters for the algorithm determining suitable alternatives.")
+    @ApiModelProperty(name = PARAM_ALTERNATIVE_ROUTES,
+            value = "Specifies whether alternative routes are computed, and parameters for the algorithm determining suitable alternatives.",
+            example = "{\"target_count\":2,\"weight_factor\":1.6}")
     @JsonProperty(PARAM_ALTERNATIVE_ROUTES)
     private RouteRequestAlternativeRoutes alternativeRoutes;
     @JsonIgnore
     private boolean hasAlternativeRoutes = false;
 
+    @ApiModelProperty(name = PARAM_DEPARTURE, value = "Departure date and time provided in local time zone" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'arrival','valueNot':['*']}}",
+            example = "2020-01-31T12:45:00",  hidden = true)
+    @JsonProperty(PARAM_DEPARTURE)
+    private LocalDateTime departure;
+    @JsonIgnore
+    private boolean hasDeparture = false;
+
+    @ApiModelProperty(name = PARAM_ARRIVAL, value = "Arrival date and time provided in local time zone" +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'departure','valueNot':['*']}}",
+            example = "2020-01-31T13:15:00",  hidden = true)
+    @JsonProperty(PARAM_ARRIVAL)
+    private LocalDateTime arrival;
+    @JsonIgnore
+    private boolean hasArrival = false;
+
+@ApiModelProperty(name = PARAM_MAXIMUM_SPEED, value = "The maximum speed specified by user." +
+            "CUSTOM_KEYS:{'validWhen':{'ref':'profile','value':['driving-*']}}",
+            example = "90")
+    @JsonProperty(PARAM_MAXIMUM_SPEED)
+    private double maximumSpeed;
+    @JsonIgnore
+    private boolean hasMaximumSpeed = false;
 
     @JsonCreator
     public RouteRequest(@JsonProperty(value = PARAM_COORDINATES, required = true) List<List<Double>> coordinates) {
@@ -504,6 +532,33 @@ public class RouteRequest {
         hasAlternativeRoutes = true;
     }
 
+    public LocalDateTime getDeparture() {
+        return departure;
+    }
+
+    public void setDeparture(LocalDateTime departure) {
+        this.departure = departure;
+        hasDeparture = true;
+    }
+
+    public LocalDateTime getArrival() {
+        return arrival;
+    }
+
+    public void setArrival(LocalDateTime arrival) {
+        this.arrival = arrival;
+        hasArrival = true;
+    }
+
+    public void setMaximumSpeed(Double maximumSpeed) {
+        this.maximumSpeed = maximumSpeed;
+        hasMaximumSpeed = true;
+    }
+
+    public double getMaximumSpeed() {
+        return maximumSpeed;
+    }
+
     public boolean hasIncludeRoundaboutExitInfo() {
         return hasIncludeRoundaboutExitInfo;
     }
@@ -575,4 +630,12 @@ public class RouteRequest {
     public boolean hasSkipSegments() { return hasSkipSegments;}
 
     public boolean hasAlternativeRoutes() { return hasAlternativeRoutes; }
+
+    public boolean hasDeparture() { return hasDeparture; }
+
+    public boolean hasArrival() { return hasArrival; }
+
+    public boolean hasMaximumSpeed() {
+        return hasMaximumSpeed;
+    }
 }
